@@ -2,216 +2,216 @@
 
 namespace DBBuild
 {
-	class Runner
-	{
+    class Runner
+    {
 
-		#region Constructor
-		public Runner(Macros macros)
-		{
-			mac = macros;
-			db = new SMOConnect(mac.Get("$DBSERVER$"), mac.Get("$DBCATALOG$"), true);
-		}
-		#endregion
+        #region Constructor
+        public Runner(Macros macros)
+        {
+            mac = macros;
+            db = new SMOConnect(mac.Get("$DBSERVER$"), mac.Get("$DBCATALOG$"), true);
+        }
+        #endregion
 
-		#region Members
-		private SMOConnect db;
-		private Macros mac;
-		#endregion
+        #region Members
+        private SMOConnect db;
+        private Macros mac;
+        #endregion
 
-		#region PUBLIC ExecuteSQL
-		public void ExecuteSQL(string sql)
-		{
+        #region PUBLIC ExecuteSQL
+        public void ExecuteSQL(string sql)
+        {
 
-			// execute through db
-			db.ExecuteSQL(sql);
+            // execute through db
+            db.ExecuteSQL(sql);
 
-		}
-		#endregion
+        }
+        #endregion
 
-		#region PUBLIC SetCatalog
-		public void SetCatalog()
-		{
+        #region PUBLIC SetCatalog
+        public void SetCatalog()
+        {
 
-			// update the catalog
-			mac.Set("$DBCATALOG$", db.GetCatalogName());
+            // update the catalog
+            mac.Set("$DBCATALOG$", db.GetCatalogName());
 
-		}
-		#endregion
+        }
+        #endregion
 
-		#region PUBLIC SetupVersioning
-		public void SetupVersioning()
-		{
-			
-			// check to see this is not a special db
-			string curDB = db.GetCatalogName().ToUpper();
-			if(curDB == "MASTER" || curDB == "MSDB" || curDB == "TEMPDB" || curDB == "MODEL")
-			{
-				UI.Feedback("WARNING", "Cannot mark a system DB for versioning (currently [" + curDB + "])", mac.GetTF("$VERBOSE$"));
-			}
-			else
-			{
+        #region PUBLIC SetupVersioning
+        public void SetupVersioning()
+        {
 
-				// needed vars
-				string sql;
-				bool needVersion = true;
-				bool needChanges = true;
+            // check to see this is not a special db
+            string curDB = db.GetCatalogName().ToUpper();
+            if (curDB == "MASTER" || curDB == "MSDB" || curDB == "TEMPDB" || curDB == "MODEL")
+            {
+                UI.Feedback("WARNING", "Cannot mark a system DB for versioning (currently [" + curDB + "])", mac.GetTF("$VERBOSE$"));
+            }
+            else
+            {
 
-				// get the list of expected tables (dbo.DBBVersion & dbo.DBBChanges)
-				sql = "SELECT TABLE_SCHEMA + '.' + TABLE_NAME AS TName FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE = 'BASE TABLE' AND (TABLE_SCHEMA + '.' + TABLE_NAME = '" + mac.Get("$DBBVERSION$") + "' OR TABLE_SCHEMA + '.' + TABLE_NAME = '" + mac.Get("$DBBCHANGES$") + "')";
-				DataSet ds = db.GetDataSet(sql);
+                // needed vars
+                string sql;
+                bool needVersion = true;
+                bool needChanges = true;
 
-				// check to see if this has dbbversion/dbbchanges
-				if(ds.Tables.Count == 1)
-				{
-					foreach (DataRow row in ds.Tables[0].Rows)
-					{
+                // get the list of expected tables (dbo.DBBVersion & dbo.DBBChanges)
+                sql = "SELECT TABLE_SCHEMA + '.' + TABLE_NAME AS TName FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE = 'BASE TABLE' AND (TABLE_SCHEMA + '.' + TABLE_NAME = '" + mac.Get("$DBBVERSION$") + "' OR TABLE_SCHEMA + '.' + TABLE_NAME = '" + mac.Get("$DBBCHANGES$") + "')";
+                DataSet ds = db.GetDataSet(sql);
 
-						// check if we need the DBBVersion
-						if ( row["TName"].ToString().ToUpper() == mac.Get("$DBBVERSION$").ToUpper() )
-						{
-							needVersion = false;
-						}
+                // check to see if this has dbbversion/dbbchanges
+                if (ds.Tables.Count == 1)
+                {
+                    foreach (DataRow row in ds.Tables[0].Rows)
+                    {
 
-						// check if we need the DBBChanges
-						if ( row["TName"].ToString().ToUpper() == mac.Get("$DBBCHANGES$").ToUpper() )
-						{
-							needChanges = false;
-						}
-					}
-				}
+                        // check if we need the DBBVersion
+                        if (row["TName"].ToString().ToUpper() == mac.Get("$DBBVERSION$").ToUpper())
+                        {
+                            needVersion = false;
+                        }
 
-				// if not there, create DBBVersion
-				if(needVersion)
-				{
-					// create table
-					sql = "CREATE TABLE " + mac.Get("$DBBVERSION$") + " (InstalledOn datetime NOT NULL CONSTRAINT PK_" + mac.Get("$DBBVERSION$").Replace('.', '_') + " PRIMARY KEY, LastUpdateOn datetime NOT NULL, CurrentState nvarchar(30) NOT NULL)";
-					db.ExecuteSQL(sql);
+                        // check if we need the DBBChanges
+                        if (row["TName"].ToString().ToUpper() == mac.Get("$DBBCHANGES$").ToUpper())
+                        {
+                            needChanges = false;
+                        }
+                    }
+                }
 
-					// set initial version info
-					sql = "INSERT INTO " + mac.Get("$DBBVERSION$") + " (InstalledOn, LastUpdateOn, CurrentState) VALUES (GetUTCDate(), GetUTCDate(), 'INITIALIZING')";
-					db.ExecuteSQL(sql);
-				}
+                // if not there, create DBBVersion
+                if (needVersion)
+                {
+                    // create table
+                    sql = "CREATE TABLE " + mac.Get("$DBBVERSION$") + " (InstalledOn datetime NOT NULL CONSTRAINT PK_" + mac.Get("$DBBVERSION$").Replace('.', '_') + " PRIMARY KEY, LastUpdateOn datetime NOT NULL, CurrentState nvarchar(30) NOT NULL)";
+                    db.ExecuteSQL(sql);
 
-				// if not there, create DBBChanges
-				if(needChanges)
-				{
-					// create table
-					sql = "CREATE TABLE " + mac.Get("$DBBCHANGES$") + " (Script nvarchar(450) NOT NULL CONSTRAINT PK_" + mac.Get("$DBBCHANGES$").Replace('.', '_') + " PRIMARY KEY, ChangeState nvarchar(30) NOT NULL, StartedOn datetime NOT NULL, CompletedOn datetime NULL)";
-					db.ExecuteSQL(sql);
-				}
-				
-			}
+                    // set initial version info
+                    sql = "INSERT INTO " + mac.Get("$DBBVERSION$") + " (InstalledOn, LastUpdateOn, CurrentState) VALUES (GetUTCDate(), GetUTCDate(), 'INITIALIZING')";
+                    db.ExecuteSQL(sql);
+                }
 
-		}
-		#endregion
+                // if not there, create DBBChanges
+                if (needChanges)
+                {
+                    // create table
+                    sql = "CREATE TABLE " + mac.Get("$DBBCHANGES$") + " (Script nvarchar(450) NOT NULL CONSTRAINT PK_" + mac.Get("$DBBCHANGES$").Replace('.', '_') + " PRIMARY KEY, ChangeState nvarchar(30) NOT NULL, StartedOn datetime NOT NULL, CompletedOn datetime NULL)";
+                    db.ExecuteSQL(sql);
+                }
 
-		#region PUBLIC VersionStart
-		public void VersionStart()
-		{
+            }
 
-			// needed vars
-			string sql;
+        }
+        #endregion
 
-			// set the Version State
-			sql = "UPDATE " + mac.Get("$DBBVERSION$") + " SET CurrentState = 'BUILDING'";
-			db.ExecuteSQL(sql);
+        #region PUBLIC VersionStart
+        public void VersionStart()
+        {
 
-		}
-		#endregion
+            // needed vars
+            string sql;
 
-		#region PUBLIC VersionSucceeded
-		public void VersionSucceeded()
-		{
+            // set the Version State
+            sql = "UPDATE " + mac.Get("$DBBVERSION$") + " SET CurrentState = 'BUILDING'";
+            db.ExecuteSQL(sql);
 
-			// needed vars
-			string sql;
+        }
+        #endregion
 
-			// set the Version State
-			sql = "UPDATE " + mac.Get("$DBBVERSION$") + " SET LastUpdateOn = GetUTCDate(), CurrentState = 'SUCCESSFUL'";
-			db.ExecuteSQL(sql);
+        #region PUBLIC VersionSucceeded
+        public void VersionSucceeded()
+        {
 
-		}
-		#endregion
+            // needed vars
+            string sql;
 
-		#region PUBLIC VersionFailed
-		public void VersionFailed()
-		{
+            // set the Version State
+            sql = "UPDATE " + mac.Get("$DBBVERSION$") + " SET LastUpdateOn = GetUTCDate(), CurrentState = 'SUCCESSFUL'";
+            db.ExecuteSQL(sql);
 
-			// needed vars
-			string sql;
+        }
+        #endregion
 
-			// set the Version State
-			sql = "UPDATE " + mac.Get("$DBBVERSION$") + " SET LastUpdateOn = GetUTCDate(), CurrentState = 'FAILED'";
-			db.ExecuteSQL(sql);
+        #region PUBLIC VersionFailed
+        public void VersionFailed()
+        {
 
-		}
-		#endregion
+            // needed vars
+            string sql;
 
-		#region PUBLIC ChangeCheck
-		public bool ChangeCheck(string script)
-		{
+            // set the Version State
+            sql = "UPDATE " + mac.Get("$DBBVERSION$") + " SET LastUpdateOn = GetUTCDate(), CurrentState = 'FAILED'";
+            db.ExecuteSQL(sql);
 
-			// needed vars
-			string sql;
-			bool exists = false;
+        }
+        #endregion
 
-			// query the number if this exists
-			sql = "SELECT Count(*) AS Cnt FROM " + mac.Get("$DBBCHANGES$") + " WHERE Script = '" + script + "'";
-			DataSet ds = db.GetDataSet(sql);
+        #region PUBLIC ChangeCheck
+        public bool ChangeCheck(string script)
+        {
 
-			// check for the existance of
-			if (ds.Tables[0].Rows[0]["Cnt"].ToString() == "1")
-			{
-				exists = true;
-			}
+            // needed vars
+            string sql;
+            bool exists = false;
 
-			// return result
-			return !exists;
+            // query the number if this exists
+            sql = "SELECT Count(*) AS Cnt FROM " + mac.Get("$DBBCHANGES$") + " WHERE Script = '" + script + "'";
+            DataSet ds = db.GetDataSet(sql);
 
-		}
-		#endregion
+            // check for the existance of
+            if (ds.Tables[0].Rows[0]["Cnt"].ToString() == "1")
+            {
+                exists = true;
+            }
 
-		#region PUBLIC ChangeStart
-		public void ChangeStart(string script)
-		{
+            // return result
+            return !exists;
 
-			// needed vars
-			string sql;
+        }
+        #endregion
 
-			// set the Version State
-			sql = "INSERT INTO " + mac.Get("$DBBCHANGES$") + " (Script, ChangeState, StartedOn) VALUES ('" + script + "', 'BUILDING', GetUTCDate())";
-			db.ExecuteSQL(sql);
+        #region PUBLIC ChangeStart
+        public void ChangeStart(string script)
+        {
 
-		}
-		#endregion
+            // needed vars
+            string sql;
 
-		#region PUBLIC ChangeSucceeded
-		public void ChangeSucceeded(string script)
-		{
+            // set the Version State
+            sql = "INSERT INTO " + mac.Get("$DBBCHANGES$") + " (Script, ChangeState, StartedOn) VALUES ('" + script + "', 'BUILDING', GetUTCDate())";
+            db.ExecuteSQL(sql);
 
-			// needed vars
-			string sql;
+        }
+        #endregion
 
-			// set the Version State
-			sql = "UPDATE " + mac.Get("$DBBCHANGES$") + " SET ChangeState = 'SUCCEEDED', CompletedOn = GetUTCDate() WHERE Script = '" + script + "'";
-			db.ExecuteSQL(sql);
+        #region PUBLIC ChangeSucceeded
+        public void ChangeSucceeded(string script)
+        {
 
-		}
-		#endregion
+            // needed vars
+            string sql;
 
-		#region PUBLIC ChangeFailed
-		public void ChangeFailed(string script)
-		{
+            // set the Version State
+            sql = "UPDATE " + mac.Get("$DBBCHANGES$") + " SET ChangeState = 'SUCCEEDED', CompletedOn = GetUTCDate() WHERE Script = '" + script + "'";
+            db.ExecuteSQL(sql);
 
-			// needed vars
-			string sql;
+        }
+        #endregion
 
-			// set the Version State
-			sql = "DELETE FROM " + mac.Get("$DBBCHANGES$") + " WHERE Script = '" + script + "'";
-			db.ExecuteSQL(sql);
+        #region PUBLIC ChangeFailed
+        public void ChangeFailed(string script)
+        {
 
-		}
-		#endregion
+            // needed vars
+            string sql;
 
-	}
+            // set the Version State
+            sql = "DELETE FROM " + mac.Get("$DBBCHANGES$") + " WHERE Script = '" + script + "'";
+            db.ExecuteSQL(sql);
+
+        }
+        #endregion
+
+    }
 }

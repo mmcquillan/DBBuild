@@ -13,64 +13,63 @@ using System;
 
 namespace DBBuild
 {
-  class Starter
-	{
-		#region The Main Program
-		static void Main(string[] args)
+    class Starter
     {
-			// set the environment
-    	Console.Title = "dbb - The Database Build Tool";
-      try
-      {
-				// instantiate new builder engine
-        BuildEngine b = new BuildEngine();
-
-				// if we have cmd line input, then must be a file
-        if (args.Length > 0)
+        #region The Main Program
+        static void Main(string[] args)
         {
 
-					// construct a string command
-					string cmd = "INCLUDETHIS " + args[0];
+            try
+            {
+                // instantiate new builder engine
+                BuildEngine b = new BuildEngine();
 
-					// send command to be parsed
-					b.Parse(cmd);
+                // if we have cmd line input, then must be a file
+                if (args.Length > 0)
+                {
 
-				}
-        else
-        {
+                    // construct a string command
+                    string cmd = "INCLUDETHIS " + args[0];
 
-					// feedback for interactive
-          Console.WriteLine("dbb interactive (? for help)");
+                    // send command to be parsed
+                    b.Parse(cmd);
 
-					// continuous loop for input
-          while (true)
-          {
+                }
+                else
+                {
 
-						// input lead in
-            Console.Write("> ");
+                    // feedback for interactive
+                    Console.WriteLine("dbb interactive (? for help)");
 
-						// capture input
-            string input = Console.ReadLine();
+                    // continuous loop for input
+                    while (true)
+                    {
 
-						// send to be parsed
-            b.Parse(input);
+                        // input lead in
+                        Console.Write("> ");
 
-          }
+                        // capture input
+                        string input = Console.ReadLine();
+
+                        // send to be parsed
+                        b.Parse(input);
+
+                    }
+                }
+
+                // clean up any open resources
+                b.CleanUp();
+
+            }
+            catch (Exception ex)
+            {
+
+                // unexpected error
+                UI.Feedback("ERROR", ex.Message);
+                Environment.Exit(1);
+
+            }
         }
-
-				// clean up any open resources
-        b.CleanUp();
-
-      }
-      catch (Exception ex)
-      {
-
-				// unexpected error
-				UI.Feedback("ERROR", ex.Message);
-				Environment.Exit(1);
-
-      }
-		}
-		#endregion
-	}
+        #endregion
+    }
 }
