@@ -28,6 +28,8 @@ namespace DBBuild
                 if (args.Length > 0)
                 {
 
+                    // check for file extension
+
                     // construct a string command
                     string cmd = "INCLUDETHIS " + args[0];
 

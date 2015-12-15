@@ -6,7 +6,7 @@ Maintained @ http://www.codeplex.com/dbbuild
 
 
 -- Description --------------------------------------------------------------
-There are lots of great applications to script out and find differences in 
+There are lots of great applications to script out and find differences in
 SQL Server schemas. What I think is missing is a flexible tool to reassemble
 your scripts and deploy them easily. This tool provides a means of combining
 the scripts into a single SQL file or have them run against a database in an
@@ -22,9 +22,9 @@ One Big SQL Script Model:
 
 	The dbb application is very good at concatenating many SQL scripts
 	into one big SQL script. You can use a combination of specifying
-	each individual script or a directory of sql scripts (they should 
-	process in alphabetical order). This is useful if you want to compile 
-	a script and distribute it without need for this application. The 
+	each individual script or a directory of sql scripts (they should
+	process in alphabetical order). This is useful if you want to compile
+	a script and distribute it without need for this application. The
 	main commands for this model are APPEND, CREATE, WRITE and CLOSE.
 
 
@@ -36,7 +36,7 @@ Run Now Model:
 	The advantage of this is to instantly know if the scripts work. The
 	main disadvantage is that this is not distributable. You would have
 	to run this set of commands through the dbb application against each
-	target DB. The main commands for this model are CONNECT, RUN, 
+	target DB. The main commands for this model are CONNECT, RUN,
 	RUNONCE and DISCONNECT.
 
 
@@ -54,7 +54,7 @@ for it to execute. Say you want an easy way to create your [MusicCollection]
 database schema. You might create a dbb file that will act as a recipe of how
 to run the scripts. In this case, the command would look like this (you
 can name the file any way you want, so long as the contents are in a text
-format): 
+format):
 
 dbb.exe myfile.txt
 
@@ -230,7 +230,7 @@ CREATE <file to create>
 	writing out scripts to with the WRITE command. This is similar to
 	the APPEND command, except that APPEND will keep any existing file
 	and append to the end. When done, make sure to use the CLOSE command
-	to free up the lock and write out any buffered text to the file 
+	to free up the lock and write out any buffered text to the file
 	(especially if you use the file elsewhere in your dbb recipe file).
 
 
@@ -255,9 +255,9 @@ INCLUDE <dbb file to process>
 
 RUN <file(s) to run>
 
-	Use this command to run a script (or set of scripts) against the 
-	active connected database as determined by the CONNECT command. You 
-	can pass in a single file or a group of files by using a wildcard 
+	Use this command to run a script (or set of scripts) against the
+	active connected database as determined by the CONNECT command. You
+	can pass in a single file or a group of files by using a wildcard
 	such as "somewhere\schema.sql" or "somewhere\*.sql".
 
 
@@ -280,7 +280,7 @@ SET <find> = <replace>
 	arguments (such as RUN $ROOT_DIR$\myscript.sql) and will also be
 	used as substitutions on all scripts that are input using the RUN,
 	RUNONCE and WRITE command. It is possible to use this as a search and
-	replace as there are no restrictions on what you name your macro 
+	replace as there are no restrictions on what you name your macro
 	variables (such as SET localhost = 10.10.10.1). There are a set of
 	application default macro variables which are listed in the section
 	above and will control the behavior of some commands.
@@ -300,7 +300,7 @@ SUCCESS <optional message>
 TEST <file to test>
 
 	This command might go away some day. This was added to test the
-	output of a batch of commands (outputting errors from OSQL into a 
+	output of a batch of commands (outputting errors from OSQL into a
 	file). It basically will scan a file for lines that look like SQL
 	error messages and exit dbb with an error code of 1 if it finds them.
 
@@ -310,21 +310,23 @@ WRITE <file(s) to written>
 	Use this command to write a script (or set of scripts) against any
 	files that have been opened with APPEND or CREATE. It is useful to
 	note that you can have several files written to at once by using the
-	APPEND or CREATE commands multiple times for different files. You 
-	can pass in a single file or a group of files by using a wildcard 
+	APPEND or CREATE commands multiple times for different files. You
+	can pass in a single file or a group of files by using a wildcard
 	such as "somewhere\schema.sql" or "somewhere\*.sql".
 
 
 
 -- Requirements -------------------------------------------------------------
-The executable should run without installation, assuming you have SQL Server
-2005 installed. The project relies on the following DLL's:
+This executable will run, provided you have MS SQL Server 2012 SMO.
 
 Microsoft.SqlServer.ConnectionInfo
-<sql directory>\90\SDK\Assemblies\Microsoft.SqlServer.ConnectionInfo.dll
+<sql directory>\120\SDK\Assemblies\Microsoft.SqlServer.ConnectionInfo.dll
+
+Microsoft.SqlServer.Management.Sdk.Sfc
+<sql directory>\120\SDK\Assemblies\Microsoft.SqlServer.Management.Sdk.Sfc.dll
 
 Microsoft.SqlServer.Smo
-<sql directory>\90\SDK\Assemblies\Microsoft.SqlServer.Smo.dll
+<sql directory>\120\SDK\Assemblies\Microsoft.SqlServer.Smo.dll
 
 
 
@@ -339,5 +341,3 @@ term focus will be on the following areas:
 
 3. Need to allow SQL Server errors to be reported back instead of the
    generic "Transact SQL error...".
-
-Please provide feedback @ http://www.codeplex.com/dbbuild
