@@ -1,8 +1,8 @@
 -----------------------------------------------------------------------------
-The Database Build Tool                                    dbb.exe - 0.2 Beta
+The Database Build Tool                                           dbbuild.exe
 -----------------------------------------------------------------------------
 
-Maintained @ http://www.codeplex.com/dbbuild
+Maintained @ https://github.com/mmcquillan/DBBuild
 
 
 -- Description --------------------------------------------------------------
@@ -38,12 +38,6 @@ Run Now Model:
 	to run this set of commands through the dbb application against each
 	target DB. The main commands for this model are CONNECT, RUN,
 	RUNONCE and DISCONNECT.
-
-
-
--- DB Upgrade Strategy ------------------------------------------------------
-
-	...coming soon...
 
 
 
