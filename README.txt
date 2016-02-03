@@ -128,6 +128,12 @@ $DBCATALOG$
 	for this is "tempdb".
 
 
+$DBTRUSTED$
+
+	True or False flag to control if the login/pass is used or trusted
+	connection to the database for authentication.
+	
+
 $DBLOGIN$
 
 	This is to hold the login for connecting to a DB, but this is
