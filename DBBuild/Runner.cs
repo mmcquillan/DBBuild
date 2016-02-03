@@ -1,4 +1,5 @@
 ﻿using System.Data;
+using System.IO;
 
 namespace DBBuild
 {
@@ -9,7 +10,14 @@ namespace DBBuild
         public Runner(Macros macros)
         {
             mac = macros;
-            db = new SMOConnect(mac.Get("$DBSERVER$"), mac.Get("$DBCATALOG$"), true);
+            if (mac.GetTF("$DBTRUSTED$"))
+            {
+                db = new SMOConnect(mac.Get("$DBSERVER$"), mac.Get("$DBCATALOG$"), true);
+            }
+            else
+            {
+                db = new SMOConnect(mac.Get("$DBSERVER$"), mac.Get("$DBCATALOG$"), mac.Get("$DBLOGIN$"), mac.Get("$DBPASSWORD$"));
+            }
         }
         #endregion
 

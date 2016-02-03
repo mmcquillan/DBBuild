@@ -2,7 +2,6 @@
 // TODO: Add a lots of Error Handling
 // TODO: Create a latch to keep two instances from running at once
 // TODO: Save Errors in the DBB tables
-// TODO: Add Sql/Trusted Login Support smarts
 // TODO: Ensure cmd outputs values
 // TODO: Ensure errors exit with a bad error code
 // TODO: Throw a warning when the Catalog changes

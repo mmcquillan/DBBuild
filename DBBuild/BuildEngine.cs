@@ -14,6 +14,7 @@ namespace DBBuild
             mac = new Macros();
             mac.Set("$DBSERVER$", "localhost");
             mac.Set("$DBCATALOG$", "tempdb");
+            mac.Set("$DBTRUSTED$", "true");
             mac.Set("$DBLOGIN$", "");
             mac.Set("$DBPASSWORD$", "");
             mac.Set("$VERBOSE$", "true");
