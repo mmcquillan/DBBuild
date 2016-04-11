@@ -328,16 +328,3 @@ Microsoft.SqlServer.Management.Sdk.Sfc
 Microsoft.SqlServer.Smo
 <sql directory>\120\SDK\Assemblies\Microsoft.SqlServer.Smo.dll
 
-
-
--- Future -------------------------------------------------------------------
-This application is fresh and has some areas that need attention. My near
-term focus will be on the following areas:
-
-1. Getting sql logins/passwords to work with CONNECT (currently only supports
-   trusted connections.
-
-2. Improve the error handling and reporting around each command.
-
-3. Need to allow SQL Server errors to be reported back instead of the
-   generic "Transact SQL error...".
