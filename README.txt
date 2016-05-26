@@ -4,6 +4,8 @@ The Database Build Tool                                           dbbuild.exe
 
 Maintained @ https://github.com/mmcquillan/DBBuild
 
+License: MIT License
+
 
 -- Description --------------------------------------------------------------
 There are lots of great applications to script out and find differences in
