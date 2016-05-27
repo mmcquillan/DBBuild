@@ -17,60 +17,64 @@ namespace DBBuild
 
         public static void Feedback(string type, string output, bool verbose)
         {
-
-            if (verbose)
+            try
             {
-
-                // grab the original color
-                ConsoleColor OriginalColor = Console.ForegroundColor;
-
-                // adjust color based on type
-                switch (type)
+                if (verbose)
                 {
-                    case "ERROR":
-                        Console.ForegroundColor = ConsoleColor.Red;
-                        break;
-                    case "SUCCESS":
-                        Console.ForegroundColor = ConsoleColor.Green;
-                        break;
-                    case "WARNING":
-                        Console.ForegroundColor = ConsoleColor.Yellow;
-                        break;
-                    default:
-                        Console.ForegroundColor = ConsoleColor.DarkGray;
-                        break;
-                }
+                    // grab the original color
+                    ConsoleColor OriginalColor = Console.ForegroundColor;
 
-                // write out the type
-                Console.Write(type.PadRight(tabSpace));
-
-                // reset color to original
-                Console.ForegroundColor = OriginalColor;
-
-                // see if the msg is long enough to wrap
-                if (output.Length <= Console.WindowWidth - tabSpace - 1)
-                {
-                    Console.WriteLine(output);
-                }
-                else
-                {
-                    Console.WriteLine(output.Substring(0, Console.WindowWidth - tabSpace - 1));
-                    int marker = Console.WindowWidth - tabSpace - 1;
-                    while (marker < output.Length)
+                    // adjust color based on type
+                    switch (type)
                     {
-                        if (output.Length <= marker + Console.WindowWidth - tabSpace - 1)
+                        case "ERROR":
+                            Console.ForegroundColor = ConsoleColor.Red;
+                            break;
+                        case "SUCCESS":
+                            Console.ForegroundColor = ConsoleColor.Green;
+                            break;
+                        case "WARNING":
+                            Console.ForegroundColor = ConsoleColor.Yellow;
+                            break;
+                        default:
+                            Console.ForegroundColor = ConsoleColor.DarkGray;
+                            break;
+                    }
+
+                    // write out the type
+                    Console.Write(type.PadRight(tabSpace));
+
+                    // reset color to original
+                    Console.ForegroundColor = OriginalColor;
+
+                    // see if the msg is long enough to wrap
+                    if (output.Length <= Console.WindowWidth - tabSpace - 1)
+                    {
+                        Console.WriteLine(output);
+                    }
+                    else
+                    {
+                        Console.WriteLine(output.Substring(0, Console.WindowWidth - tabSpace - 1));
+                        int marker = Console.WindowWidth - tabSpace - 1;
+                        while (marker < output.Length)
                         {
-                            Console.WriteLine("".PadRight(tabSpace) + output.Substring(marker));
-                            marker = output.Length;
-                        }
-                        else
-                        {
-                            Console.WriteLine("".PadLeft(tabSpace) + output.Substring(marker, Console.WindowWidth - tabSpace - 1));
-                            marker = marker + Console.WindowWidth - tabSpace - 1;
+                            if (output.Length <= marker + Console.WindowWidth - tabSpace - 1)
+                            {
+                                Console.WriteLine("".PadRight(tabSpace) + output.Substring(marker));
+                                marker = output.Length;
+                            }
+                            else
+                            {
+                                Console.WriteLine("".PadLeft(tabSpace) + output.Substring(marker, Console.WindowWidth - tabSpace - 1));
+                                marker = marker + Console.WindowWidth - tabSpace - 1;
+                            }
                         }
                     }
                 }
-
+            }
+            catch (Exception)
+            {
+                Console.WriteLine(output);
             }
         }
         #endregion
